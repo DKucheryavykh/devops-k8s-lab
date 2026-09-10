@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: devops-lab
+  name: devops-k8s-lab
+  labels:
+    app: devops-k8s-lab
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: devops-k8s-lab
+  template:
+    metadata:
+      labels:
+        app: devops-k8s-lab
+    spec:
+      containers:
+        - name: app
+          image: devops-k8s-lab:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+
+          envFrom:
+            - configMapRef:
+                name: devops-k8s-lab-config
+
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 5
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
