@@ -1,0 +1,41 @@
+replicaCount: 3
+
+image:
+  repository: devops-k8s-lab
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+ingress:
+  enabled: true
+  className: nginx
+  host: devops-lab.local
+  path: /
+  pathType: Prefix
+
+config:
+  appEnv: kubernetes
+  appMessage: Running from Helm
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 250m
+    memory: 128Mi
+
+probes:
+  readiness:
+    path: /ready
+    initialDelaySeconds: 3
+    periodSeconds: 5
+
+  liveness:
+    path: /health
+    initialDelaySeconds: 5
+    periodSeconds: 10
