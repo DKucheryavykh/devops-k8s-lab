@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: devops-demo
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  namespaceSelector:
+    matchNames:
+      - devops-helm
+
+  selector:
+    matchLabels:
+      monitoring: enabled
+
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
