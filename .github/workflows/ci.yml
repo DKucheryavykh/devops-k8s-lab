@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r app/requirements.txt
+
+      - name: Validate Python syntax
+        run: |
+          python -m py_compile app/app.py
+
+      - name: Build Docker image
+        run: |
+          docker build -t devops-k8s-lab:ci .
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Helm lint
+        run: |
+          helm lint helm/devops-demo
+
+      - name: Render Helm templates
+        run: |
+          helm template devops-demo helm/devops-demo \
+            --namespace devops-helm \
+            --set ingress.host=helm.devops-lab.local \
+            > /tmp/rendered.yaml
+
+      - name: Validate Docker Compose
+        run: |
+          docker compose config
