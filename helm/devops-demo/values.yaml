@@ -1,9 +1,9 @@
 replicaCount: 3
 
 image:
-  repository: devops-k8s-lab
+  repository: ghcr.io/dkucheryavykh/devops-k8s-lab
   tag: latest
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 service:
   type: ClusterIP
