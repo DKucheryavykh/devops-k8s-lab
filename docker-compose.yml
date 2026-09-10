@@ -1,0 +1,33 @@
+services:
+  app:
+    build: .
+    container_name: devops-k8s-lab-app
+    environment:
+      APP_ENV: docker-compose
+      APP_MESSAGE: Running behind reverse proxy
+    expose:
+      - "8080"
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: devops-k8s-lab-nginx
+    depends_on:
+      - app
+    ports:
+      - "8088:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    restart: unless-stopped
+
+  haproxy:
+    image: haproxy:3.0-alpine
+    container_name: devops-k8s-lab-haproxy
+    depends_on:
+      - app
+    ports:
+      - "8090:80"
+      - "8404:8404"
+    volumes:
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    restart: unless-stopped
